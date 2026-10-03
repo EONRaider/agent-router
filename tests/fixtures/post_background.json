@@ -1,0 +1,28 @@
+{
+  "session_id": "11111111-2222-3333-4444-555555555555",
+  "transcript_path": "/home/user/.claude/projects/-home-user-project/11111111-2222-3333-4444-555555555555.jsonl",
+  "cwd": "/home/user/project/sub",
+  "scratchpad_dir": "/tmp/claude/11111111-2222-3333-4444-555555555555/scratchpad",
+  "prompt_id": "aaaaaaaa-0000-0000-0000-000000000002",
+  "permission_mode": "default",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Agent",
+  "tool_input": {
+    "description": "Read a.txt and report contents",
+    "prompt": "Read a.txt and report its contents.",
+    "subagent_type": "agent-router:scout",
+    "run_in_background": true
+  },
+  "tool_response": {
+    "isAsync": true,
+    "status": "async_launched",
+    "agentId": "a7ba453706d4e6dd5",
+    "description": "Read a.txt and report contents",
+    "resolvedModel": "claude-haiku-4-5-20251001",
+    "prompt": "Read a.txt and report its contents.",
+    "outputFile": "/tmp/claude/11111111-2222-3333-4444-555555555555/tasks/a7ba453706d4e6dd5.output",
+    "canReadOutputFile": true
+  },
+  "tool_use_id": "toolu_01RRuzuyGVdiGAv2A154ot6x",
+  "duration_ms": 6
+}

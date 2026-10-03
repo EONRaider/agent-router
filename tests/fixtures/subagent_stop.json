@@ -1,0 +1,16 @@
+{
+  "session_id": "11111111-2222-3333-4444-555555555555",
+  "transcript_path": "/home/user/.claude/projects/-home-user-project/11111111-2222-3333-4444-555555555555.jsonl",
+  "cwd": "/home/user/project/sub",
+  "scratchpad_dir": "/tmp/claude/11111111-2222-3333-4444-555555555555/scratchpad",
+  "prompt_id": "aaaaaaaa-0000-0000-0000-000000000002",
+  "permission_mode": "default",
+  "agent_id": "a7ba453706d4e6dd5",
+  "agent_type": "agent-router:scout",
+  "hook_event_name": "SubagentStop",
+  "stop_hook_active": false,
+  "agent_transcript_path": "REPLACED_BY_TEST",
+  "last_assistant_message": "a.txt contains: hello",
+  "background_tasks": [],
+  "session_crons": []
+}
