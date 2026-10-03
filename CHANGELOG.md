@@ -6,8 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-03
+
+First release.
+
 ### Added
 
+- Vendor mode for cloud sessions: `/agent-router:init` can copy the hooks and agents into the
+  project's `.claude/` and register them in `.claude/settings.json`.
 - Four pre-sized agent tiers with pinned model and effort: `scout` (Haiku, low), `worker`
   (Sonnet, medium), `analyst` (Sonnet, high) and `judge` (Opus, high).
 - `routing` skill: how to pick a tier, write the brief and record outcomes.
@@ -32,3 +38,6 @@ All notable changes to this project are documented here. The format follows
 - `/agent-router:init` to opt a project in, and the overlay file `.claude/agent-router.json`.
 - Session start message listing the project's tiers.
 - Repository scaffold: license, contribution and security policies, CI, issue and PR templates.
+
+[Unreleased]: https://github.com/EONRaider/agent-router/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/EONRaider/agent-router/releases/tag/v0.1.0

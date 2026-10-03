@@ -32,4 +32,27 @@ Opting in writes files into the project's repository. Do it only because the use
      false}` in the overlay leaves it out.
    - Logging starts with the next session.
 
-3. Do not commit the files yourself unless the user asks.
+3. Ask the user whether they run cloud sessions (Claude Code on the web, routines) on this
+   repository. Plugins do not load there, so by default a cloud session runs no agent-router
+   hooks and logs nothing. If they want cloud sessions covered, run:
+
+   ```bash
+   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/router.py" vendor
+   ```
+
+   This copies the hook scripts and agent definitions to `.claude/agent-router/vendor/`,
+   registers the hooks in `.claude/settings.json` (existing settings are kept), and generates
+   all four tiers as project agents named `router-scout`, `router-worker`, `router-analyst`
+   and `router-judge`. From the next session on, those names replace the `agent-router:*`
+   ones in this project. Tell the user:
+
+   - the vendored hooks run for everyone who clones the repository, and do nothing where
+     `python3` is missing;
+   - the copy does not update with the plugin. Running this command again refreshes it, and
+     the session start message says when it is behind;
+   - only single-repository cloud sessions run repository hooks.
+
+   Skip this step if the user does not use cloud sessions. If the session start message said
+   the vendored copy is behind, run the same command to update it.
+
+4. Do not commit the files yourself unless the user asks.

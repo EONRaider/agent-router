@@ -1,7 +1,10 @@
 # agent-router: implementation plan
 
-Status: revised after adversarial review, waiting for approval. No code is written and no
-repository exists yet.
+> This is the plan as approved before the build, kept as a design record. Where the build
+> departed from it, see "Departures from the plan" at the end. The README and the other files
+> in `docs/` describe the plugin as built.
+
+Status: approved on 2026-10-03 and built as v0.1.0.
 
 ## 1. Verification results
 
@@ -354,3 +357,20 @@ depend on values the session cannot see. From the second pass: plugin and vendor
 longer both act on one event; retries are matched on a full-prompt hash; unfinished background
 spawns are not counted as failures. Not adopted: cutting preamble hashing and trial
 downgrades from v0.1, because the spec asks for both and each is small.
+
+## 11. Departures from the plan
+
+- The admin command line is `scripts/router.py` (`init`, `sync`, `vendor`, `report`,
+  `decide`), not `report.py`.
+- `init` does not add a permission rule for `mark.py`. A tool that writes its own allow rules
+  does more than it should unasked; the README says which rule to add by hand.
+- Fable is ranked (4) and priced, because the pricing page lists it above Opus. Proposals
+  still only move along the haiku, sonnet, opus ladder.
+- Probed during the build: project `.claude/settings.json` hooks do not load when a local
+  session starts in a subdirectory, although `.claude/agents/` does. Vendored hooks therefore
+  cover sessions that start at the repository root, which cloud sessions do; locally the
+  plugin's own hooks cover every start directory.
+- Not probed: the context-limit case and background-agent failure payloads. A background
+  spawn with no `finish` record is shown in the report and not counted.
+- The session cache claim for SessionStart uses a five-second time bucket, because that event
+  has no id of its own.

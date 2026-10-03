@@ -6,6 +6,7 @@ Usage: router.py <command> [arguments] [--root DIR]
 Commands:
   init    opt the project in: write the overlay and supporting files
   sync    write .claude/agents/router-<tier>.md for tiers the overlay resizes or adds
+  vendor  copy the hooks and agents into the project's .claude/ so cloud sessions run them
   report  print the project's report and proposals (--json for data, --summaries for
           the task summaries behind overrides and rejections)
   decide  record a decision on a proposal: decide <id> accept|reject
@@ -19,12 +20,12 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from agent_router import config as config_module  # noqa: E402
-from agent_router import decisions, project, report, setup, sync  # noqa: E402
+from agent_router import decisions, project, report, setup, sync, vendor  # noqa: E402
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="router.py", description="agent-router commands")
-    parser.add_argument("command", choices=["init", "sync", "report", "decide"])
+    parser.add_argument("command", choices=["init", "sync", "vendor", "report", "decide"])
     parser.add_argument("arguments", nargs="*")
     parser.add_argument("--json", action="store_true", help="report: print data as JSON")
     parser.add_argument("--summaries", action="store_true", help="report: print task summaries")
@@ -35,6 +36,13 @@ def main(argv=None):
     if args.command == "init":
         print(f"agent-router: project root is {root}")
         for line in setup.init(root):
+            print(f"- {line}")
+        try:
+            config = config_module.load(root)
+        except (config_module.ConfigError, KeyError, TypeError) as error:
+            print(f"agent-router: cannot use the overlay: {error}", file=sys.stderr)
+            return 1
+        for line in sync.sync(root, config, config.tier_descriptions):
             print(f"- {line}")
         return 0
 
@@ -53,6 +61,18 @@ def main(argv=None):
             print(f"- {line}")
         if changes:
             print("New or changed agents load in the next session.")
+    elif args.command == "vendor":
+        try:
+            version = vendor.vendor(root, config_module.read_overlay(root))
+        except vendor.VendorError as error:
+            print(f"agent-router: {error}", file=sys.stderr)
+            return 1
+        updated = config_module.load(root)
+        print(f"- copied agent-router {version} to {vendor.VENDOR_RELPATH}/")
+        print(f"- registered the hooks in {vendor.SETTINGS_RELPATH}")
+        for line in sync.sync(root, updated, updated.tier_descriptions):
+            print(f"- {line}")
+        print("Commit these files so cloud sessions pick them up. Tiers are now `router-*`.")
     elif args.command == "report":
         if args.summaries:
             print(json.dumps(report.summaries(root, config), indent=2))
