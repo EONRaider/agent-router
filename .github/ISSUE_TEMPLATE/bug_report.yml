@@ -1,0 +1,41 @@
+name: Bug report
+description: A hook, skill or report behaved incorrectly
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: >
+        The spawn that was wrongly allowed or rejected, or the report output.
+        Remove prompt text and anything private before pasting.
+    validations:
+      required: true
+  - type: input
+    id: plugin
+    attributes:
+      label: agent-router version
+    validations:
+      required: true
+  - type: input
+    id: claude
+    attributes:
+      label: Claude Code version (`claude --version`)
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: OS and Python version
+  - type: textarea
+    id: overlay
+    attributes:
+      label: Project overlay (`.claude/agent-router.json`), if any
+      render: json
