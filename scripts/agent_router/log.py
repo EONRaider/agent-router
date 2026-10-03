@@ -244,6 +244,27 @@ def fail_record(payload, config):
     return record
 
 
+def reject_record(payload, config, decision):
+    """The record written when the enforcement hook matches a rule.
+
+    `enforced` is False when the rule only warned and the spawn went ahead.
+    """
+    tool_input = payload.get("tool_input") or {}
+    record = _base("reject", payload)
+    record.update(_routing_fields(tool_input, config))
+    record.update(
+        {
+            "tool_use_id": payload.get("tool_use_id"),
+            "rule": decision.rule,
+            "phrase": decision.phrase,
+            "enforced": not decision.allow,
+            "summary": summary(tool_input, config),
+            "prompt_hash": prompt_fingerprint(tool_input.get("prompt"))["prompt_hash"],
+        }
+    )
+    return record
+
+
 def read_records(root):
     """Every record in a project's log, oldest file first, skipping unreadable lines."""
     directory = Path(root) / STATE_RELPATH / "log"
