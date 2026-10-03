@@ -14,7 +14,15 @@ def tier_table(config):
     return "\n".join(lines)
 
 
-def session_context(config, warning=None):
+def mark_command(script, session_id):
+    """The exact command a session runs to record an outcome for one of its agents."""
+    return (
+        "To record what happened to an agent's output (redone, review-failed, user-rejected), "
+        f'run: python3 "{script}" --session {session_id} <agent-id> <outcome>'
+    )
+
+
+def session_context(config, warning=None, mark=None):
     """Context for an opted-in project: which agent type to spawn for each tier."""
     if not config.initialised:
         return "\n".join(part for part in (warning, INIT_HINT) if part)
@@ -24,6 +32,8 @@ def session_context(config, warning=None):
         "Lookups go to scout, checkable implementation to worker, research to analyst, and "
         "review, audit, security or design calls always go to judge. When unsure, go up a tier.",
     ]
+    if mark and config.log_enabled:
+        parts.append(mark)
     if warning:
         parts.insert(0, warning)
     return "\n".join(parts)

@@ -161,8 +161,9 @@ def test_override_at_or_above_the_floor_is_allowed():
 
 
 def test_unknown_model_is_allowed_and_noted():
-    decision = decide("agent-router:worker", model="fable")
-    assert decision.allow and "fable" in decision.note
+    decision = decide("agent-router:worker", model="mystery")
+    assert decision.allow and "mystery" in decision.note
+    assert decide("agent-router:judge", model="fable").allow
 
 
 def test_tier_floor_can_be_lowered_by_the_project():
