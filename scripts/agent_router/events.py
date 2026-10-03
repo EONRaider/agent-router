@@ -1,6 +1,7 @@
 """What each hook event does. Kept apart from the entry point so it can be tested."""
 
 import time
+from pathlib import Path
 
 from . import config as config_module
 from . import context, log, policy, project
@@ -22,7 +23,9 @@ def session_start(payload, env):
     bucket = int(time.time() // 5)
     if not project.claim(payload, f"start-{payload.get('source')}-{bucket}", env):
         return None
-    return {"stdout": context.session_context(config, warning)}
+    script = Path(__file__).resolve().parent.parent / "mark.py"
+    mark = context.mark_command(script, project.safe_id(payload.get("session_id")))
+    return {"stdout": context.session_context(config, warning, mark)}
 
 
 def pre_tool_use(payload, env):

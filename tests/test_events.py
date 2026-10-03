@@ -67,6 +67,7 @@ def test_session_start_lists_the_projects_tiers(write_overlay, env):
     result = events.session_start({"session_id": "s", "cwd": str(root), "source": "startup"}, env)
     assert "`router-worker` (opus, high effort)" in result["stdout"]
     assert "`agent-router:scout` (haiku, low effort)" in result["stdout"]
+    assert 'mark.py" --session s <agent-id> <outcome>' in result["stdout"]
 
 
 def test_session_start_speaks_once_per_event(project_dir, env):

@@ -60,9 +60,10 @@ def test_model_rank_reads_aliases_and_full_ids():
     config = make()
     assert config.model_rank("haiku") < config.model_rank("sonnet") < config.model_rank("opus")
     assert config.model_rank("claude-opus-5-5") == config.model_rank("opus")
-    assert config.model_rank("fable") is None
+    assert config.model_rank("claude-fable-5-1") > config.model_rank("opus")
+    assert config.model_rank("mystery") is None
     assert config.model_rank(None) is None
-    assert make({"model_ranks": {"fable": 4}}).model_rank("claude-fable-5-1") == 4
+    assert make({"model_ranks": {"mystery": 5}}).model_rank("mystery-2") == 5
 
 
 def test_review_rule_warns_until_the_project_opts_in():
@@ -115,4 +116,5 @@ def test_defaults_file_is_consistent():
     defaults = load_defaults()
     assert set(defaults["tier_order"]) == set(defaults["tiers"])
     assert set(defaults["prices_per_mtok"]) == set(defaults["model_ranks"])
+    assert set(defaults["model_ladder"]) <= set(defaults["model_ranks"])
     assert config_module.DEFAULTS_PATH.name == "defaults.json"

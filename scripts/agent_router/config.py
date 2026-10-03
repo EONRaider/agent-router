@@ -77,6 +77,7 @@ class Config:
         self.trials = list(overlay.get("trials", []))
         self.thresholds = dict(defaults["thresholds"], **overlay.get("thresholds", {}))
         self.prices = defaults["prices_per_mtok"]
+        self.model_ladder = list(defaults["model_ladder"])
 
         log = overlay.get("log", {})
         self.log_enabled = self.initialised and log.get("enabled", True)

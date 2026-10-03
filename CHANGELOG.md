@@ -11,6 +11,15 @@ All notable changes to this project are documented here. The format follows
 - Four pre-sized agent tiers with pinned model and effort: `scout` (Haiku, low), `worker`
   (Sonnet, medium), `analyst` (Sonnet, high) and `judge` (Opus, high).
 - `routing` skill: how to pick a tier, write the brief and record outcomes.
+- `/agent-router:report`: per-tier spawns, problems and estimated spend, and proposals with
+  their evidence, example spawns, spend estimate and exact overlay edit. Accepting or
+  rejecting is always a person's decision; rejected proposals stay quiet until new evidence
+  meets the threshold again.
+- Outcome signals derived by rule: rejected first attempt, model override, turn limit or
+  failure, retry or escalation of an identical brief, linked judge verdicts, contradicted
+  judges, and explicit marks recorded with `mark.py`.
+- Guardrails: minimum sample, upgrades need 3 incidents and downgrades 50 clean spawns,
+  trial downgrades with a proposed revert, locked tiers.
 - Enforcement hook on the `Agent` tool. It rejects, with one line naming the correct call: a
   review or audit brief sent to scout or worker, a model override below the tier's floor, a
   spawn below the project's hard floor, a shipped tier the project remapped, and (with
