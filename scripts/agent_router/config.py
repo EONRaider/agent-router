@@ -93,6 +93,11 @@ class Config:
         # Until a project opts in there is no overlay in which to relax the rule, so it warns.
         self.review_mode = review_overlay.get("mode", "deny" if self.initialised else "warn")
 
+        self.tier_descriptions = {
+            name: spec["description"]
+            for name, spec in overlay.get("tiers", {}).items()
+            if isinstance(spec, dict) and spec.get("description")
+        }
         self.tiers = {}
         for name, spec in defaults["tiers"].items():
             override = overlay.get("tiers", {}).get(name, {})

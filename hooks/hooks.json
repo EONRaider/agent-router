@@ -1,5 +1,5 @@
 {
-  "description": "agent-router: logs subagent spawns for opted-in projects. No model calls, no network.",
+  "description": "agent-router: checks subagent spawns against routing rules and logs them for opted-in projects. No model calls, no network.",
   "hooks": {
     "SessionStart": [
       {
@@ -8,7 +8,26 @@
           {
             "type": "command",
             "command": "python3",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/hook.py", "session-start"],
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook.py",
+              "session-start"
+            ],
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook.py",
+              "pre"
+            ],
             "timeout": 5
           }
         ]
@@ -21,7 +40,10 @@
           {
             "type": "command",
             "command": "python3",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/hook.py", "post"],
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook.py",
+              "post"
+            ],
             "timeout": 5
           }
         ]
@@ -34,7 +56,10 @@
           {
             "type": "command",
             "command": "python3",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/hook.py", "post-failure"],
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook.py",
+              "post-failure"
+            ],
             "timeout": 5
           }
         ]
@@ -46,7 +71,10 @@
           {
             "type": "command",
             "command": "python3",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/hook.py", "subagent-stop"],
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook.py",
+              "subagent-stop"
+            ],
             "timeout": 5
           }
         ]

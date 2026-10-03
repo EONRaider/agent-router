@@ -113,3 +113,72 @@ def test_hook_script_end_to_end(payload, project_dir, tmp_path):
     result = run_hook("post", io.StringIO(json.dumps(data)).read())
     assert result.returncode == 0, result.stderr
     assert len(log.read_records(project_dir)) == 1
+
+
+def pre_payload(payload, directory, **tool_input):
+    data = at(payload("post_foreground"), directory)
+    data.pop("tool_response")
+    data["hook_event_name"] = "PreToolUse"
+    data["tool_input"].update(tool_input)
+    return data
+
+
+def test_pre_hook_denies_with_the_documented_shape_and_logs_a_reject(payload, project_dir, env):
+    data = pre_payload(payload, project_dir, subagent_type="agent-router:worker", model="haiku")
+    output = events.pre_tool_use(data, env)["json"]["hookSpecificOutput"]
+    assert output["hookEventName"] == "PreToolUse" and output["permissionDecision"] == "deny"
+    assert "floor" in output["permissionDecisionReason"]
+    (record,) = log.read_records(project_dir)
+    assert (record["kind"], record["rule"], record["enforced"]) == ("reject", "model-floor", True)
+
+
+def test_pre_hook_is_silent_for_an_allowed_spawn(payload, project_dir, env):
+    assert events.pre_tool_use(pre_payload(payload, project_dir), env) is None
+    assert log.read_records(project_dir) == []
+
+
+def test_warn_mode_logs_but_does_not_deny(payload, write_overlay, env):
+    root = write_overlay({"review_language": {"mode": "warn"}})
+    data = pre_payload(payload, root, subagent_type="agent-router:worker", description="audit it")
+    assert events.pre_tool_use(data, env) is None
+    (record,) = log.read_records(root)
+    assert (record["rule"], record["enforced"], record["phrase"]) == (
+        "review-language",
+        False,
+        "audit",
+    )
+
+
+def test_second_hook_set_does_not_repeat_a_denial(payload, project_dir, env):
+    data = pre_payload(payload, project_dir, subagent_type="agent-router:worker", model="haiku")
+    assert events.pre_tool_use(data, env) is not None
+    assert events.pre_tool_use(data, env) is None
+    assert len(log.read_records(project_dir)) == 1
+
+
+def test_remap_is_enforced_only_for_agents_present_at_session_start(payload, write_overlay, env):
+    root = write_overlay({"tiers": {"worker": {"model": "opus", "effort": "high"}}})
+    start = {
+        "session_id": "11111111-2222-3333-4444-555555555555",
+        "cwd": str(root),
+        "source": "startup",
+    }
+    events.session_start(start, env)
+    agents = root / ".claude" / "agents"
+    agents.mkdir()
+    (agents / "router-worker.md").write_text("x", encoding="utf-8")
+    data = pre_payload(payload, root, subagent_type="agent-router:worker")
+    assert events.pre_tool_use(data, env) is None  # created mid-session: cannot load yet
+
+    fresh = dict(data, session_id="next-session", tool_use_id="toolu_next")
+    events.session_start(dict(start, session_id="next-session"), env)
+    denied = events.pre_tool_use(fresh, env)
+    assert "router-worker" in denied["json"]["hookSpecificOutput"]["permissionDecisionReason"]
+
+
+def test_denial_in_an_unconfigured_project_writes_nothing(payload, tmp_path, env):
+    repo = tmp_path / "plain"
+    (repo / ".git").mkdir(parents=True)
+    data = pre_payload(payload, repo, subagent_type="agent-router:worker", model="haiku")
+    assert events.pre_tool_use(data, env) is not None
+    assert not (repo / ".claude").exists()

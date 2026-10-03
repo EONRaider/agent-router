@@ -7,7 +7,7 @@ import re
 import tempfile
 from pathlib import Path
 
-from . import OVERLAY_RELPATH
+from . import OVERLAY_RELPATH, PROJECT_AGENT_PREFIX
 
 SAFE_ID = re.compile(r"[^A-Za-z0-9_.-]")
 
@@ -49,19 +49,38 @@ def cache_dir(payload, env=None):
     return base
 
 
-def session_root(payload, env=None):
-    """The project root for this session, resolved once and then read from the cache."""
+def project_agents(root):
+    """Names of the generated project agents present on disk."""
+    directory = Path(root) / ".claude" / "agents"
+    return sorted(path.stem for path in directory.glob(f"{PROJECT_AGENT_PREFIX}*.md"))
+
+
+def session_state(payload, env=None, refresh=False):
+    """The project root and the project agents this session can load.
+
+    Resolved once, at session start, and then read from the cache: later `cwd` changes do not
+    move the root, and an agent file created mid-session is not counted, because Claude Code
+    cannot load it until the next session.
+    """
     env = os.environ if env is None else env
     cache = cache_dir(payload, env) / "session.json"
-    try:
-        return Path(json.loads(cache.read_text(encoding="utf-8"))["root"])
-    except (OSError, ValueError, KeyError):
-        pass
+    if not refresh:
+        try:
+            state = json.loads(cache.read_text(encoding="utf-8"))
+            return {"root": Path(state["root"]), "agents": set(state["agents"])}
+        except (OSError, ValueError, KeyError, TypeError):
+            pass
     start = payload.get("cwd") or env.get("CLAUDE_PROJECT_DIR") or os.getcwd()
     root = find_root(start, env.get("CLAUDE_PROJECT_DIR"))
+    agents = project_agents(root)
     with contextlib.suppress(OSError):
-        cache.write_text(json.dumps({"root": str(root)}), encoding="utf-8")
-    return root
+        cache.write_text(json.dumps({"root": str(root), "agents": agents}), encoding="utf-8")
+    return {"root": root, "agents": set(agents)}
+
+
+def session_root(payload, env=None):
+    """The project root for this session."""
+    return session_state(payload, env)["root"]
 
 
 def claim(payload, key, env=None):
