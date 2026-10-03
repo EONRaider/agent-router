@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 from . import config as config_module
-from . import context, log, policy, project
+from . import context, log, policy, project, vendor
 
 # Claude Code reloads agent definitions when a session starts or is resumed.
 RELOADING_SOURCES = ("startup", "resume")
@@ -25,7 +25,8 @@ def session_start(payload, env):
         return None
     script = Path(__file__).resolve().parent.parent / "mark.py"
     mark = context.mark_command(script, project.safe_id(payload.get("session_id")))
-    return {"stdout": context.session_context(config, warning, mark)}
+    notes = [n for n in (warning, vendor.stale_note(root) if config.vendored else None) if n]
+    return {"stdout": context.session_context(config, "\n".join(notes) or None, mark)}
 
 
 def pre_tool_use(payload, env):
