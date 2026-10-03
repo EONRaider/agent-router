@@ -1,0 +1,36 @@
+{
+  "session_id": "11111111-2222-3333-4444-555555555555",
+  "transcript_path": "/home/user/.claude/projects/-home-user-project/11111111-2222-3333-4444-555555555555.jsonl",
+  "cwd": "/home/user/project/sub",
+  "scratchpad_dir": "/tmp/claude/11111111-2222-3333-4444-555555555555/scratchpad",
+  "prompt_id": "aaaaaaaa-0000-0000-0000-000000000001",
+  "permission_mode": "default",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Agent",
+  "tool_input": {
+    "description": "Read a.txt from current directory",
+    "prompt": "Read the file a.txt in the current directory and report its full contents.",
+    "subagent_type": "agent-router:scout",
+    "run_in_background": false
+  },
+  "tool_response": {
+    "status": "completed",
+    "prompt": "Read the file a.txt in the current directory and report its full contents.",
+    "agentId": "a928c9bf16b62279b",
+    "agentType": "agent-router:scout",
+    "content": [{ "type": "text", "text": "The full contents of a.txt are:\n\nhello\n" }],
+    "resolvedModel": "claude-haiku-4-5-20251001",
+    "totalDurationMs": 6514,
+    "totalTokens": 7733,
+    "totalToolUseCount": 1,
+    "usage": {
+      "input_tokens": 8,
+      "cache_creation_input_tokens": 1128,
+      "cache_read_input_tokens": 6489,
+      "output_tokens": 108
+    },
+    "toolStats": { "readCount": 1, "searchCount": 0, "bashCount": 0 }
+  },
+  "tool_use_id": "toolu_017XB6nT7sj7TvTrP4GdriPE",
+  "duration_ms": 6516
+}

@@ -1,0 +1,65 @@
+"""What each hook event does. Kept apart from the entry point so it can be tested."""
+
+import time
+
+from . import config as config_module
+from . import context, log, project
+
+
+def _setup(payload, env):
+    root = project.session_root(payload, env)
+    config, warning = config_module.load_or_defaults(root)
+    return root, config, warning
+
+
+def session_start(payload, env):
+    """Resolve the project once and tell the session which agent types to use."""
+    root, config, warning = _setup(payload, env)
+    # SessionStart has no event id; a short time bucket keeps a second hook set quiet.
+    bucket = int(time.time() // 5)
+    if not project.claim(payload, f"start-{payload.get('source')}-{bucket}", env):
+        return None
+    return {"stdout": context.session_context(config, warning)}
+
+
+def post_tool_use(payload, env):
+    """Log a finished (or launched) Agent call."""
+    if payload.get("tool_name") != "Agent":
+        return None
+    root, config, _ = _setup(payload, env)
+    if not config.log_enabled or not project.claim(
+        payload, f"post-{payload.get('tool_use_id')}", env
+    ):
+        return None
+    log.append(log.log_path(root, payload.get("session_id")), log.spawn_record(payload, config))
+    return None
+
+
+def post_tool_use_failure(payload, env):
+    """Log an Agent call that errored."""
+    if payload.get("tool_name") != "Agent":
+        return None
+    root, config, _ = _setup(payload, env)
+    if not config.log_enabled or not project.claim(
+        payload, f"fail-{payload.get('tool_use_id')}", env
+    ):
+        return None
+    log.append(log.log_path(root, payload.get("session_id")), log.fail_record(payload, config))
+    return None
+
+
+def subagent_stop(payload, env):
+    """Log a subagent's totals when it stops; this is the only source for background spawns."""
+    root, config, _ = _setup(payload, env)
+    if not config.log_enabled or not project.claim(payload, f"stop-{payload.get('agent_id')}", env):
+        return None
+    log.append(log.log_path(root, payload.get("session_id")), log.finish_record(payload, config))
+    return None
+
+
+HANDLERS = {
+    "session-start": session_start,
+    "post": post_tool_use,
+    "post-failure": post_tool_use_failure,
+    "subagent-stop": subagent_stop,
+}
