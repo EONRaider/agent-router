@@ -8,4 +8,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Four pre-sized agent tiers with pinned model and effort: `scout` (Haiku, low), `worker`
+  (Sonnet, medium), `analyst` (Sonnet, high) and `judge` (Opus, high).
+- `routing` skill: how to pick a tier, write the brief and record outcomes.
 - Repository scaffold: license, contribution and security policies, CI, issue and PR templates.

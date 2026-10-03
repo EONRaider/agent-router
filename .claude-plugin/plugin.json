@@ -1,0 +1,13 @@
+{
+  "name": "agent-router",
+  "version": "0.1.0",
+  "description": "Sizes subagents to the task: four pre-sized agent tiers (scout, worker, analyst, judge), a routing skill, an enforcement hook, a per-project spawn log with outcome signals, and proposals a person accepts or rejects.",
+  "author": {
+    "name": "EONRaider",
+    "url": "https://github.com/EONRaider"
+  },
+  "homepage": "https://github.com/EONRaider/agent-router",
+  "repository": "https://github.com/EONRaider/agent-router",
+  "license": "MIT",
+  "keywords": ["subagents", "routing", "model-selection", "effort", "hooks", "cost", "usage"]
+}
